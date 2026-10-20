@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release
+        shell: powershell
+        run: .\build-release.ps1 -OutputRoot .\dist
+      - name: Smoke tests
+        shell: powershell
+        run: .\tests\smoke.ps1 -DistRoot .\dist
+      - name: Upload unsigned test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: focusqos-unsigned
+          path: dist/FocusQoS-2.2.0.zip
+          if-no-files-found: error
+

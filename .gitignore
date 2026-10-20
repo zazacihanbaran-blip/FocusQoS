@@ -1,0 +1,10 @@
+build/
+dist/
+*.user
+*.suo
+*.pfx
+*.snk
+*.cer
+*.log
+benchmark-*.json
+

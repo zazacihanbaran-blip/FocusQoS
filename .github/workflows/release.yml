@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        shell: powershell
+        run: .\build-release.ps1 -OutputRoot .\dist
+      - name: Smoke tests
+        shell: powershell
+        run: .\tests\smoke.ps1 -DistRoot .\dist
+      - name: Attest release archive
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/FocusQoS-2.2.0.zip
+      - name: Create GitHub release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:GITHUB_REF_NAME .\dist\FocusQoS-2.2.0.zip .\dist\FocusQoS-2.2.0\FocusQoS-Setup-2.2.0.exe .\dist\FocusQoS-2.2.0\SHA256SUMS.txt --verify-tag --generate-notes
+
